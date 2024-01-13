@@ -1,0 +1,36 @@
+name: Improved choose one
+
+on:
+  push:
+    branches:
+      - "main"
+
+jobs:
+  prev-job:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Previous job1"
+  
+  job1:
+    runs-on: ubuntu-latest
+    needs: [job32]
+    environment: job1
+    if: always() && needs.job32.status == 'success'
+    steps:
+      - run: echo "job1"
+  
+  job31:
+    runs-on: ubuntu-latest
+    needs: [job1]
+
+  job2:
+    runs-on: ubuntu-latest
+    needs: [job31]
+    environment: job2
+    if: always() && needs.job31.status == 'success'
+    steps:
+      - run: echo "job2"
+  
+  job32:
+    runs-on: ubuntu-latest
+    needs: [job2]

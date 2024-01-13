@@ -1,9 +1,9 @@
-name: Example automate cancel
+name: Example choose one
 
 on:
   push:
     branches:
-      - "main"
+      - "master"
 
 jobs:
   job1:
