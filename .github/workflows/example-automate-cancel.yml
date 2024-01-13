@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: job2
     steps:
-      - run: echo "Job2 approved"
+      - run: exit 1
       - run: | 
           curl -L \
             -X POST \
