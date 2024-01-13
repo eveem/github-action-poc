@@ -3,7 +3,7 @@ name: Example skip job
 on:
   push:
     branches:
-      - "main"
+      - "master"
 
 jobs:
   job1:
