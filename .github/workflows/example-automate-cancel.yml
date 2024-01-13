@@ -34,12 +34,12 @@ jobs:
             https://api.github.com/repos/eveem/github-action-poc/actions/runs/${{ github.run_id }}/pending_deployments \
             -d '{"environment_ids":[2039638534],"state":"rejected","comment":"Rejected because triggered job2"}'
   
-  # job3:
-  #   needs: [job1, job2]
-  #   runs-on: ubuntu-latest
-  #   if: | 
-  #     always() && 
-  #     ((needs.job1.result == 'success' && needs.job2.result == 'failure') || 
-  #     (needs.job1.result == 'failure' && needs.job2.result == 'success'))
-  #   steps:
-  #     - run: echo "Job3 complete!"
+  job3:
+    needs: [job1, job2]
+    runs-on: ubuntu-latest
+    if: | 
+      always() && 
+      ((needs.job1.result == 'success' && needs.job2.result == 'failure') || 
+      (needs.job1.result == 'failure' && needs.job2.result == 'success'))
+    steps:
+      - run: echo "Job3 complete!"
