@@ -11,21 +11,21 @@ jobs:
     environment: job1
     steps:
       - run: echo "Job1 approved"
-      - run: echo "Cancel job2"
+      # - run: echo "Cancel job2"
   
   job2:
     runs-on: ubuntu-latest
     environment: job2
     steps:
       - run: echo "Job2 approved"
-      - run: echo "Cancel job1"
+      # - run: echo "Cancel job1"
   
-  job3:
-    needs: [job1, job2]
-    runs-on: ubuntu-latest
-    if: | 
-      always() && 
-      ((needs.job1.result == 'success' && needs.job2.result == 'failure') || 
-      (needs.job1.result == 'failure' && needs.job2.result == 'success'))
-    steps:
-      - run: echo "Job3 complete!"
+  # job3:
+  #   needs: [job1, job2]
+  #   runs-on: ubuntu-latest
+  #   if: | 
+  #     always() && 
+  #     ((needs.job1.result == 'success' && needs.job2.result == 'failure') || 
+  #     (needs.job1.result == 'failure' && needs.job2.result == 'success'))
+  #   steps:
+  #     - run: echo "Job3 complete!"
