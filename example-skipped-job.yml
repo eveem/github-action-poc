@@ -1,4 +1,4 @@
-name: Example automate cancel
+name: Example skip job
 
 on:
   push:
