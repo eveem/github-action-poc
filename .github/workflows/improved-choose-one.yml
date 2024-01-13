@@ -3,7 +3,7 @@ name: Improved choose one
 on:
   push:
     branches:
-      - "main"
+      - "master"
 
 jobs:
   prev-job:
