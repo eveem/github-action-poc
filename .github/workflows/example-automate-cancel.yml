@@ -8,12 +8,14 @@ on:
 jobs:
   job1:
     runs-on: ubuntu-latest
+    environment: job1
     steps:
       - run: echo "Job1 approved"
       - run: echo "Cancel job2"
   
   job2:
     runs-on: ubuntu-latest
+    environment: job2
     steps:
       - run: echo "Job2 approved"
       - run: echo "Cancel job1"
