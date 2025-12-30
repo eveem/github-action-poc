@@ -38,7 +38,7 @@ jobs:
             }
 
             const matrix = { include: [...apps].map(app => ({ app })) };
-            core.setOutput('matrix', JSON.stringify(maxtrix));
+            core.setOutput('matrix', JSON.stringify(matrix));
   show:
     name: Show detected change
     runs-on: ubuntu-latest
