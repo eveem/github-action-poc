@@ -36,6 +36,9 @@ jobs:
                 apps.add(match[1]);
               }
             }
+
+            const matrix = { include: [...apps].map(app => ({ app })) };
+            core.setOutput('matrix', JSON.stringify(maxtrix));
   show:
     name: Show detected change
     runs-on: ubuntu-latest
