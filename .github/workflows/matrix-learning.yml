@@ -1,10 +1,9 @@
 name: Learning about matrix
 
 on:
-  push:
-    branches:
-      - main
-
+  pull_request:
+    paths:
+      - "repositories/**"
 jobs:
   detect:
     name: Detect changed cdk apps
