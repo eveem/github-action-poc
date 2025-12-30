@@ -1,0 +1,47 @@
+name: Learning about matrix
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  detect:
+    name: Detect changed cdk apps
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Build matrix from changed files
+        id: set-matrix
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const files = await github.paginate(
+              github.rest.pulls.listFiles,
+              {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.payload.pull_request.number,
+                per_page: 100,
+              }
+            );
+
+            const apps = new Set();
+
+            for (const file of files) {
+              const match = file.filename.match(/^repositories\/([^\/]+)\//);
+              if (match) {
+                apps.add(match[1]);
+              }
+            }
+  show:
+    name: Show detected change
+    runs-on: ubuntu-latest
+    needs: detect
+    if: ${{ fromJson(needs.detect.outputs.matrix).include.length > 0 }}
+    steps:
+      - name: Debug
+        run: echo ${{ matrix.app }}
