@@ -39,7 +39,8 @@ jobs:
 
             const matrix = { include: [...apps].map(app => ({ app })) };
             core.setOutput('matrix', JSON.stringify(matrix));
-            console.log(matrix);
+      - name: Debug output matrix
+        run: echo '${{ steps.set-matrix.outputs.matrix }}'
   show:
     name: Show detected change
     runs-on: ubuntu-latest
