@@ -1,0 +1,16 @@
+name: list pr on merge to main
+on:
+  push:
+    branches:
+      - "main"
+
+jobs:
+  listpr:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          gh pr view ${{ github.event.pull_request.head.repo.fork }} --json commits
+
+# list messageHeadline
+# request jira update ticket status
