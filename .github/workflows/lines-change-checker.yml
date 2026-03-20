@@ -1,0 +1,41 @@
+name: Conditional LOC Check
+
+on:
+  pull_request:
+    branches:
+      - "main"
+
+jobs:
+  check_loc:
+    runs-on: ubuntu-latest
+    outputs:
+      should_run: ${{ steps.calc_loc.outputs.should_run }}
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: calculate lines of code changed
+        id: calc_loc
+        run: |
+          BASE_SHA=${{ github.event.pull_request.base.sha }}
+          HEAD_SHA=${{ github.event.pull_request.head.sha }}
+
+          CHANGES=$(git diff --shortstat $BASE_SHA $HEAD_SHA | awk '{print $4 + $6}')
+
+          echo "Total lines changed: $CHANGES"
+
+          if [ "$CHANGES" -gt 50 ]; then
+            echo "should_run=true" >> $GITHUB_OUTPUT
+          else
+            echo "should_run=false" >> $GITHUB_OUTPUT
+          fi
+
+  main_workflow:
+    needs: check_loc
+    if: needs.check_loc.outputs.should_run == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: run main task
+        run: |
+          echo "executing main workflow because LOC change > 50"
