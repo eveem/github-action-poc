@@ -9,7 +9,7 @@ jobs:
   list-pr-commits:
     runs-on: ubuntu-latest
     env:
-      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
 
@@ -27,6 +27,22 @@ jobs:
 
           echo "PR #$PR_NUMBER was merged into main"
           echo ""
+
+          # Extract all commit messages
+          COMMITS=$(gh pr view $PR_NUMBER --json commits --jq '[.commits[].messageHeadline]')
+
           echo "Commits in PR #$PR_NUMBER:"
-          gh pr view $PR_NUMBER --json commits \
-            --jq '.commits[] | "- \(.messageHeadline) [\(.oid[0:7])]"'
+          echo "$COMMITS" | jq -r '.[] | "- \(.)"'
+          echo ""
+
+          # Extract unique ticket IDs matching VND-XXXX pattern
+          TICKETS=$(echo "$COMMITS" | grep -oE 'VND-[0-9]+' | sort -u)
+
+          if [ -z "$TICKETS" ]; then
+            echo "No ticket IDs found in commits"
+          else
+            echo "Ticket IDs referenced in this PR:"
+            echo "$TICKETS" | while read -r ticket; do
+              echo "  - $ticket"
+            done
+          fi
