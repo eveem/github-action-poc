@@ -60,9 +60,36 @@ jobs:
         #   JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
         run: |
           TICKETS="${{ steps.pr-commits.outputs.tickets }}"
+          AUTH=$(echo -n "$JIRA_USER_EMAIL:$JIRA_API_TOKEN" | base64)
 
           IFS=',' read -ra TICKET_LIST <<< "$TICKETS"
           for TICKET in "${TICKET_LIST[@]}"; do
             echo "Processing $TICKET..."
 
+            # Get the transition ID for "Done"
+            TRANSITION_ID=$(curl -s \
+              -H "Authorization: Basic $AUTH" \
+              -H "Content-Type: application/json" \
+              "$JIRA_BASE_URL/rest/api/3/issue/$TICKET/transitions" \
+              | jq -r '.transitions[] | select(.name == "Done") | .id')
+
+            if [ -z "$TRANSITION_ID" ] || [ "$TRANSITION_ID" = "null" ]; then
+              echo "  Could not find 'Done' transition for $TICKET, skipping"
+              continue
+            fi
+
+            # Transition the ticket to Done
+            HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+              -X POST \
+              -H "Authorization: Basic $AUTH" \
+              -H "Content-Type: application/json" \
+              -d "{\"transition\": {\"id\": \"$TRANSITION_ID\"}}" \
+              "$JIRA_BASE_URL/rest/api/3/issue/$TICKET/transitions")
+
+            if [ "$HTTP_STATUS" = "204" ]; then
+              echo "  $TICKET -> Done"
+            else
+              echo "  Failed to update $TICKET (HTTP $HTTP_STATUS)"
+              exit 1
+            fi
           done
