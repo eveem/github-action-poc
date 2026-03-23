@@ -1,18 +1,32 @@
-name: list pr on merge to main
+name: List PR Commits on Merge
+
 on:
   push:
     branches:
-      - "main"
+      - main
 
 jobs:
-  listpr:
+  list-pr-commits:
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ secrets.GH_TOKEN }}
     steps:
       - uses: actions/checkout@v4
-      - run: |
-          gh pr view ${{ github.event.pull_request.head.repo.fork }} --json commits
 
-# list messageHeadline
-# request jira update ticket status
+      - name: Find merged PR and list commits
+        run: |
+          # Find the PR associated with the merge commit SHA
+          PR_NUMBER=$(gh api repos/${{ github.repository }}/commits/${{ github.sha }}/pulls \
+            --header "Accept: application/vnd.github+json" \
+            --jq '.[0].number')
+
+          if [ -z "$PR_NUMBER" ] || [ "$PR_NUMBER" = "null" ]; then
+            echo "No PR found for commit ${{ github.sha }} (possibly a direct push)"
+            exit 0
+          fi
+
+          echo "PR #$PR_NUMBER was merged into main"
+          echo ""
+          echo "Commits in PR #$PR_NUMBER:"
+          gh pr view $PR_NUMBER --json commits \
+            --jq '.commits[] | "- \(.messageHeadline) [\(.oid[0:7])]"'
